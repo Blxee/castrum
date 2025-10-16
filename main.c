@@ -2,11 +2,11 @@
 
 void test_foo(void)
 {
+	int i = 1, j = 3;
 	ASSERT_TRUE(1);
 	ASSERT_TRUE(1);
 	ASSERT_TRUE(1);
-	ASSERT_TRUE(0);
-	ASSERT_TRUE(0);
+	ASSERT_LE(-1, 0);
 }
 
 int main(void)
