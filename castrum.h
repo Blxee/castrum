@@ -6,7 +6,7 @@
 /*   By: atahiri- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 07:56:44 by atahiri-          #+#    #+#             */
-/*   Updated: 2025/10/16 11:54:19 by atahiri-         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:05:31 by atahiri-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,13 @@ char *g_total_result[1024];
 int g_total_len = 0;
 int g_passed = 0;
 int g_failed = 0;
+int g_atexit_regitered = 0;
 
 #define RUN_TEST(func) \
-	atexit(_test_summary); \
+	if (!g_atexit_regitered) { \
+		atexit(_test_summary); \
+		g_atexit_regitered = 1; \
+	} \
 	g_test_failed = 0; \
 	g_buf_idx = 0; \
 	func(); \
@@ -64,8 +68,9 @@ void _test_summary(void)
 	)
 
 #define MAKE_PRINT_ARRAY(type) \
-	int _test_print_array_##type(type *exp, unsigned long size) \
+	int _test_print_array_##type(void *arr, unsigned long size) \
 	{ \
+		type *exp = (type *)arr; \
 		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "{ "); \
 		g_test_i = 0; \
 		while (g_test_i < size) { \
@@ -97,10 +102,10 @@ MAKE_PRINT_ARRAY(uint64_t)
 	)
 
 #define SUCCESS_MSG(func) \
-	printf("%s: \x1b[42mSUCCESS\x1b[0m\n", #func);
+	printf("\x1b[42mSUCC\x1b[0m: %s\n", #func);
 
 #define FAIL_MSG(func) \
-	printf("%s at line %d: \x1b[41mFAIL\x1b[0m\n", #func, __LINE__);
+	printf("\x1b[41mFAIL\x1b[0m: %s at line %d\n", #func, __LINE__);
 
 #define ASSERT_TRUE(exp) \
 	if (!exp) { \
