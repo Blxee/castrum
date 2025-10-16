@@ -1,8 +1,15 @@
 #include "castrum.h"
 
+void test_foo(void)
+{
+	ASSERT_TRUE(1);
+	ASSERT_TRUE(1);
+	ASSERT_TRUE(1);
+	ASSERT_TRUE(0);
+	ASSERT_TRUE(0);
+}
+
 int main(void)
 {
-	ASSERT_TRUE(34);
-	float i = 0;
-	printf("%s\n", _Generic(i, int: "iiinnntt", float: "floaat"));
+	RUN_TEST(test_foo);
 }
