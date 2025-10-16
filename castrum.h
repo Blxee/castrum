@@ -6,7 +6,7 @@
 /*   By: atahiri- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 07:56:44 by atahiri-          #+#    #+#             */
-/*   Updated: 2025/10/16 10:05:56 by atahiri-         ###   ########.fr       */
+/*   Updated: 2025/10/16 11:34:40 by atahiri-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,13 @@
 #define CASTRUM_H
 
 #include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
+int g_test_failed;
+char g_msg_buf[2048];
+unsigned long g_buf_idx;
+unsigned long g_test_i;
 
 #define PRINT_TYPE(exp) \
 	_Generic((exp), \
@@ -26,15 +33,44 @@
 		void *:			sprintf(g_msg_buf + g_buf_idx, "%p", (void *)(long)exp) \
 	)
 
+#define MAKE_PRINT_ARRAY(type) \
+	int _test_print_array_##type(type *exp, unsigned long size) \
+	{ \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "{ "); \
+		g_test_i = 0; \
+		while (g_test_i < size) { \
+			g_buf_idx += PRINT_TYPE((exp)[g_test_i]); \
+			g_buf_idx += sprintf(g_msg_buf + g_buf_idx, ", "); \
+			g_test_i++; \
+		} \
+		if (size > 0 ) \
+			g_buf_idx -= 2; \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, " }"); \
+	} \
+
+MAKE_PRINT_ARRAY(char)
+MAKE_PRINT_ARRAY(int)
+MAKE_PRINT_ARRAY(long)
+MAKE_PRINT_ARRAY(uint8_t)
+MAKE_PRINT_ARRAY(uint32_t)
+MAKE_PRINT_ARRAY(uint64_t)
+
+#define PRINT_ARRAY(exp, size) \
+	_Generic((exp), \
+			char *: _test_print_array_char(exp, size), \
+			int *: _test_print_array_int(exp, size), \
+			long *: _test_print_array_long(exp, size), \
+			unsigned char *: _test_print_array_uint8_t(exp, size), \
+			unsigned int *: _test_print_array_uint32_t(exp, size), \
+			unsigned long *: _test_print_array_uint64_t(exp, size), \
+			default: _test_print_array_long(exp, size) \
+	)
+
 #define SUCCESS_MSG(func) \
 	printf("%s: \x1b[42mSUCCESS\x1b[0m\n", #func);
 
 #define FAIL_MSG(func) \
 	printf("%s at line %d: \x1b[41mFAIL\x1b[0m\n", #func, __LINE__);
-
-int g_test_failed;
-char g_msg_buf[2048];
-unsigned long g_buf_idx;
 
 #define RUN_TEST(func) \
 	g_test_failed = 0; \
@@ -124,6 +160,43 @@ unsigned long g_buf_idx;
 	}
 
 #define ASSERT_ARR_EQ(lhs, rhs, size) \
+	if (lhs == NULL || rhs == NULL || memcmp(lhs, rhs, size * sizeof(*lhs)) != 0) { \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\t-> expected \x1b[1m%s\x1b[0m: ", #lhs); \
+		PRINT_ARRAY(lhs, size); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, " to equal \x1b[1m%s\x1b[0m: ", #rhs); \
+		PRINT_ARRAY(rhs, size); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\n"); \
+		g_test_failed++; \
+	}
 
+#define ASSERT_ARR_NE(lhs, rhs, size) \
+	if (lhs == NULL || rhs == NULL || memcmp(lhs, rhs, size * sizeof(*lhs)) == 0) { \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\t-> expected \x1b[1m%s\x1b[0m: ", #lhs); \
+		PRINT_ARRAY(lhs, size); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, " to not equal \x1b[1m%s\x1b[0m: ", #rhs); \
+		PRINT_ARRAY(rhs, size); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\n"); \
+		g_test_failed++; \
+	}
+
+#define ASSERT_STR_EQ(lhs, rhs) \
+	if (strcmp(lhs, rhs) != 0) { \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\t-> expected \x1b[1m%s\x1b[0m: ", #lhs); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "%s", lhs); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, " to equal \x1b[1m%s\x1b[0m: ", #rhs); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "%s", rhs); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\n"); \
+		g_test_failed++; \
+	}
+
+#define ASSERT_STR_NE(lhs, rhs) \
+	if (strcmp(lhs, rhs) == 0) { \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\t-> expected \x1b[1m%s\x1b[0m: ", #lhs); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "%s", lhs); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, " to not equal \x1b[1m%s\x1b[0m: ", #rhs); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "%s", rhs); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\n"); \
+		g_test_failed++; \
+	}
 
 #endif

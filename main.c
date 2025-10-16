@@ -2,11 +2,11 @@
 
 void test_foo(void)
 {
-	int i = 1, j = 3;
-	ASSERT_TRUE(1);
-	ASSERT_TRUE(1);
-	ASSERT_TRUE(1);
-	ASSERT_LE(-1, 0);
+	char i[] = {'a', 'b', 'c'}, j[] = {'a', 'b', 'c'};
+
+	ASSERT_ARR_NE(i, j, 3);
+	char *s1 = "hello", *s2 = "hello";
+	ASSERT_STR_NE(s1, s2)
 }
 
 int main(void)
