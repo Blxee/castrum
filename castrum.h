@@ -6,7 +6,7 @@
 /*   By: atahiri- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 07:56:44 by atahiri-          #+#    #+#             */
-/*   Updated: 2025/10/16 11:34:40 by atahiri-         ###   ########.fr       */
+/*   Updated: 2025/10/16 11:54:19 by atahiri-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,41 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 int g_test_failed;
 char g_msg_buf[2048];
 unsigned long g_buf_idx;
 unsigned long g_test_i;
+char *g_total_result[1024];
+int g_total_len = 0;
+int g_passed = 0;
+int g_failed = 0;
+
+#define RUN_TEST(func) \
+	atexit(_test_summary); \
+	g_test_failed = 0; \
+	g_buf_idx = 0; \
+	func(); \
+	if (g_test_failed) { \
+ 		g_total_result[g_total_len++] = "\x1b[31;1mF\x1b[0m"; \
+ 		g_failed++; \
+	} else { \
+ 		g_total_result[g_total_len++] = "\x1b[32;1mS\x1b[0m"; \
+ 		g_passed++; \
+	} \
+	if (g_test_failed) { \
+		FAIL_MSG(func) \
+		printf("%s", g_msg_buf); \
+	} else \
+		SUCCESS_MSG(func)
+
+void _test_summary(void)
+{
+	for (int i = 0; i < g_total_len; i++)
+		printf("%s", g_total_result[i]);
+	printf("\n\t=> %d passed, %d failed\n", g_passed, g_failed);
+}
 
 #define PRINT_TYPE(exp) \
 	_Generic((exp), \
@@ -71,16 +101,6 @@ MAKE_PRINT_ARRAY(uint64_t)
 
 #define FAIL_MSG(func) \
 	printf("%s at line %d: \x1b[41mFAIL\x1b[0m\n", #func, __LINE__);
-
-#define RUN_TEST(func) \
-	g_test_failed = 0; \
-	g_buf_idx = 0; \
-	func(); \
-	if (g_test_failed) { \
-		FAIL_MSG(func) \
-		printf("%s", g_msg_buf); \
-	} else \
-		SUCCESS_MSG(func)
 
 #define ASSERT_TRUE(exp) \
 	if (!exp) { \
