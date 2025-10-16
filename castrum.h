@@ -6,7 +6,7 @@
 /*   By: atahiri- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 07:56:44 by atahiri-          #+#    #+#             */
-/*   Updated: 2025/10/16 09:48:18 by atahiri-         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:01:32 by atahiri-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 		unsigned long:	sprintf(buf + idx, "%lu", (unsigned long)exp), \
 		char:			sprintf(buf + idx, "%c", (char)exp), \
 		unsigned char:	sprintf(buf + idx, "%hhx", (unsigned char)exp), \
-		void *:			sprintf(buf + idx, "%p", (void *)exp) \
+		void *:			sprintf(buf + idx, "%p", (void *)(long)exp) \
 	)
 
 #define SUCCESS_MSG(func) \
@@ -122,5 +122,8 @@ unsigned long idx;
 		idx += sprintf(buf + idx, "\n"); \
 		g_test_failed++; \
 	}
+
+#define ASSERT_ARR_EQ(lhs, rhs, size) \
+
 
 #endif
