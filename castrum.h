@@ -6,7 +6,7 @@
 /*   By: atahiri- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 07:56:44 by atahiri-          #+#    #+#             */
-/*   Updated: 2025/10/16 12:05:31 by atahiri-         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:12:19 by atahiri-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void _test_summary(void)
 	)
 
 #define MAKE_PRINT_ARRAY(type) \
-	int _test_print_array_##type(void *arr, unsigned long size) \
+	void _test_print_array_##type(void *arr, unsigned long size) \
 	{ \
 		type *exp = (type *)arr; \
 		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "{ "); \
