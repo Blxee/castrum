@@ -6,7 +6,7 @@
 /*   By: atahiri- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 07:56:44 by atahiri-          #+#    #+#             */
-/*   Updated: 2025/10/17 18:52:13 by atahiri-         ###   ########.fr       */
+/*   Updated: 2025/10/18 11:21:41 by atahiri-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,6 +127,22 @@ MAKE_PRINT_ARRAY(uint64_t)
 		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\t%s:%d -> expected \x1b[1m%s\x1b[0m: ", __FILE__, __LINE__, #exp); \
 		g_buf_idx += PRINT_TYPE(exp); \
 		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, " to be false!\n"); \
+		g_test_failed++; \
+	}
+
+#define ASSERT_NULL(exp) \
+	if (exp) { \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\t%s:%d -> expected \x1b[1m%s\x1b[0m: ", __FILE__, __LINE__, #exp); \
+		g_buf_idx += PRINT_TYPE(exp); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, " to be NULL!\n"); \
+		g_test_failed++; \
+	}
+
+#define ASSERT_NON_NULL(exp) \
+	if (!exp) { \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, "\t%s:%d -> expected \x1b[1m%s\x1b[0m: ", __FILE__, __LINE__, #exp); \
+		g_buf_idx += PRINT_TYPE(exp); \
+		g_buf_idx += sprintf(g_msg_buf + g_buf_idx, " to not be NULL!\n"); \
 		g_test_failed++; \
 	}
 
